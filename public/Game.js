@@ -1,8 +1,9 @@
-var Game = function(selector, width, height, players) {
+var Game = function(selector, width, height, players, fnUpdate) {
 	this.selector = selector;
 	this.width = width;
 	this.height = height;
 	this.players = players;
+	this.fnUpdate= fnUpdate;
 	this.init();
 };
 
@@ -16,6 +17,12 @@ Game.prototype.init = function init() {
 	container.appendChild(canvas);
 	this.canvas = canvas;
 	this.ctx = this.canvas.getContext('2d');
+	this.keyboard = {
+		LEFT: false,
+		TOP: false,
+		RIGHT: false,
+		BOTTOM: false
+	};
 	this.loaded = true;
 	this.run();
 };
@@ -23,8 +30,9 @@ Game.prototype.init = function init() {
 Game.prototype.run = function run() {
 	var self = this;
 	this.timer = setInterval(function() {
+		self.update();
 		self.draw();
-	}, 1000 / 30);
+	}, 1000 / 60);
 };
 
 Game.prototype.draw = function draw() {
@@ -32,5 +40,9 @@ Game.prototype.draw = function draw() {
 	for (var i = 0; i < this.players.length; i++) {
 		this.players[i].draw(this.ctx);
 	}
+};
+
+Game.prototype.update = function update() {
+	this.fnUpdate();
 };
 

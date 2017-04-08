@@ -7,6 +7,7 @@ var game;
 $('#login form').submit(onLoginFormSubmit);
 $('form').submit(onMessageFormSubmit);
 document.onkeydown = onKeydown;
+document.onkeyup = onKeyup;
 socket.on('chat-message', onChatMessage);
 socket.on('service-message', onServiceMessage);
 socket.on('player-moved', onPlayerMoved);
@@ -29,7 +30,7 @@ function onLoginFormSubmit(e) {
 					200
 				);
 				players.push(player);
-				game = new Game('#game', 640, 480, players);
+				game = new Game('#game', 640, 480, players, gameUpdate);
 			}
 		});
 	}
@@ -50,24 +51,56 @@ function onMessageFormSubmit(e) {
 
 function onKeydown(e) {
 	// console.log(e.keyCode);
-	if (game && game.loaded) {	
+	if (game && game.loaded) {
 		// debugger;
 		if (e.keyCode === 37) {
-			player.move('LEFT');
-			socket.emit('player-move', player);
-		}
-		else if (e.keyCode === 38) {
-			player.move('TOP');
-			socket.emit('player-move', player);
+			game.keyboard.LEFT = true;
 		}
 		else if (e.keyCode === 39) {
-			player.move('RIGHT');
-			socket.emit('player-move', player);
+			game.keyboard.RIGHT = true;
+		}
+		if (e.keyCode === 38) {
+			game.keyboard.TOP = true;
 		}
 		else if (e.keyCode === 40) {
-			player.move('BOTTOM');
-			socket.emit('player-move', player);
+			game.keyboard.BOTTOM = true;
 		}
+	}
+}
+
+function onKeyup(e) {
+	if (game && game.loaded) {
+		if (e.keyCode === 37) {
+			game.keyboard.LEFT = false;
+		}
+		else if (e.keyCode === 39) {
+			game.keyboard.RIGHT = false;
+		}
+		if (e.keyCode === 38) {
+			game.keyboard.TOP = false;
+		}
+		else if (e.keyCode === 40) {
+			game.keyboard.BOTTOM = false;
+		}
+	}
+}
+
+function gameUpdate() {
+	if (game.keyboard.LEFT) {
+		player.move('LEFT');
+		socket.emit('player-move', player);
+	}
+	else if (game.keyboard.RIGHT) {
+		player.move('RIGHT');
+		socket.emit('player-move', player);
+	}
+	if (game.keyboard.TOP) {
+		player.move('TOP');
+		socket.emit('player-move', player);
+	}
+	else if (game.keyboard.BOTTOM) {
+		player.move('BOTTOM');
+		socket.emit('player-move', player);
 	}
 }
 
